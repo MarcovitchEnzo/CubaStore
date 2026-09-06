@@ -1,4 +1,10 @@
 import pandas as pd
 
-clientes=pd.read_csv("data/raw/customers.csv")
-print(clientes)
+df=pd.read_csv("data/raw/customers.csv")
+print(df)
+print(df.shape)
+print(df.columns)
+print(df.dtypes)
+print(df.head(2))
+print(df.tail(2))
+print(df[["name","city"]])
