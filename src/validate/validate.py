@@ -16,12 +16,12 @@ print("-" * 20)
 
 #3 (Orders)
 os = ler_csv("../../data/raw/orders.csv")
-print("NULOS EM ORDERS:")
+print("NULOS EM PEDIDOS:")
 print(os.isnull().sum())
 print("-" * 20)
 
 #4
 pt = ler_csv("../../data/raw/products.csv")
-print("NULOS EM PRODUCTS:")
+print("NULOS EM PRODUCTOS:")
 print(pt.isnull().sum())
 print("-" * 20)
