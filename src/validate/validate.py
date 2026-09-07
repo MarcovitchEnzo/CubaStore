@@ -1,5 +1,6 @@
 from src.utils.file_utils import ler_csv
-from src.validate.functions import verificar_nulos, verificar_duplicados, verificar_td
+from src.validate.functions import verificar_nulos, verificar_duplicados, verificar_td, verificar_val_not_0
+from src.utils.reject_utils import salvar_rejeitados
 
 print()
 print("-" * 20)
@@ -38,8 +39,13 @@ print()
 print(verificar_td(os, "customer_id", "ORDERS", cm, "customer_id", "CUSTOMERS"))
 print("-" * 20)
 
-#4
+#4 (Products)
 print(verificar_nulos(pt, "PRODUCTS"))
 print()
 print(verificar_duplicados(pt,"product_id", "PRODUCTS"))
 print("-" * 20)
+
+#Guardar os DataFrames rejeitados na coluna quantity em order_items.csv
+reject_quant = verificar_val_not_0(oi, "quantity")
+if not reject_quant.empty:
+    salvar_rejeitados(reject_quant, "../../data/rejected/order_items_rejected.csv")
