@@ -19,7 +19,11 @@ def verificar_td(df1, coluna1, nome1, df2, coluna2, nome2):
 #REGRAS DE NEGÓCIO
 
 #Função para verificar se os valores são iguais ou menores que 0:
-def verificar_val_not_0(df, coluna):
-    val = df[coluna] <= 0
+def verificar_val_minimo(df, coluna,valor_minimo, igual_permitido):
+    if igual_permitido:
+        val = df[coluna] < valor_minimo
+    else:
+        val = df[coluna] <= valor_minimo
+
     dados_invalidos = df[val]
     return dados_invalidos
