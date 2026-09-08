@@ -1,6 +1,7 @@
+import pandas as pd
 from src.utils.file_utils import ler_csv
 from src.validate.functions import verificar_nulos, verificar_duplicados, verificar_td, verificar_val_minimo
-from src.utils.reject_utils import salvar_rejeitados
+from src.utils.reject_utils import salvar_rejeitados, reject_reason
 
 print()
 print("-" * 20)
@@ -45,12 +46,32 @@ print()
 print(verificar_duplicados(pt,"product_id", "PRODUCTS"))
 print("-" * 20)
 
-#Guardar os DataFrames rejeitados na coluna quantity em order_items_rejected.csv
-reject_quant = verificar_val_minimo(oi, "quantity", 0, False)
-if not reject_quant.empty:
-    salvar_rejeitados(reject_quant, "../../data/rejected/order_items_rejected.csv", "quantity menor ou igual a zero")
+#Criar DataFrame para acumular os registros rejeitados:
+rejeitados_order_items = pd.DataFrame()
 
-#Guardar os DataFrames rejeitados na coluna unit_price em order_items_rejected.csv
+#Validar coluna quantity:
+reject_quant = verificar_val_minimo(oi, "quantity", 0, False)
+reject_quant = reject_reason(reject_quant, "quantity menor ou igual a zero")
+
+#Validar coluna unit_price:
 reject_unit_price = verificar_val_minimo(oi, "unit_price", 0, True)
-if not reject_unit_price.empty:
-    salvar_rejeitados(reject_unit_price, "../../data/rejected/order_items_rejected.csv", "unit_price menor que zero")
+reject_unit_price = reject_reason(reject_unit_price, "unit_price menor que 0")
+
+#Concatenar registros rejeitados:
+rejeitados_order_items = pd.concat([reject_quant, reject_unit_price])
+
+#Agrupar os motivos de rejeição na mesma linha:
+motivos = rejeitados_order_items.groupby("order_item_id")["rejection_reason"].agg("; ".join)
+motivos_df = motivos.reset_index()
+
+#Remover a coluna de motivo anterior:
+dados_rejeitados = rejeitados_order_items.drop(columns=["rejection_reason"])
+
+#Unir os dados rejeitados aos motivos consolidados:
+dados_rejeitados = dados_rejeitados.merge(motivos_df, on="order_item_id")
+
+#Remover registros duplicados por order_item_id
+dados_rejeitados.drop_duplicates(subset=["order_item_id"], inplace=True)
+
+#Enviar dados rejeitados para um csv:
+salvar_rejeitados(dados_rejeitados, "../../data/rejected/rejected_data.csv")
